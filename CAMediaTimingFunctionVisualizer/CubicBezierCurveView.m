@@ -41,9 +41,9 @@
         [self addSubview:controlPoint2View];
         self.controlPoint2View = controlPoint2View;
         
-        UIPanGestureRecognizer *controlPoint1GestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(onControlPoint1Panned:)];
+        UIPanGestureRecognizer *controlPoint1GestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(onControlPointPanned:)];
         [controlPoint1View addGestureRecognizer:controlPoint1GestureRecognizer];
-        UIPanGestureRecognizer *controlPoint2GestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(onControlPoint2Panned:)];
+        UIPanGestureRecognizer *controlPoint2GestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(onControlPointPanned:)];
         [controlPoint2View addGestureRecognizer:controlPoint2GestureRecognizer];
     }
     return self;
@@ -110,82 +110,60 @@
     
 }
 
-- (void)onControlPoint1Panned:(UIPanGestureRecognizer*)gestureRecognizer
+- (void)onControlPointPanned:(UIPanGestureRecognizer*)gestureRecognizer
 {
+    UIView *view = [gestureRecognizer view];
     UIGestureRecognizerState state = [gestureRecognizer state];
     if (state==UIGestureRecognizerStateBegan)
     {
-        self.initialControlPoint1ViewPosition = [self.controlPoint1View frame].origin;
+        if (view==self.controlPoint1View) self.initialControlPoint1ViewPosition = [self.controlPoint1View frame].origin;
+        else self.initialControlPoint2ViewPosition = [self.controlPoint2View frame].origin;
     }
     else
     {
+        UIView *controlPointView = nil;
+        CGPoint initialControlPointViewPosition;
+        if (view==self.controlPoint1View)
+        {
+            controlPointView = self.controlPoint1View;
+            initialControlPointViewPosition = self.initialControlPoint1ViewPosition;
+        }
+        else
+        {
+            controlPointView = self.controlPoint2View;
+            initialControlPointViewPosition = self.initialControlPoint2ViewPosition;
+        }
+        
         CGPoint translation = [gestureRecognizer translationInView:self];
-        CGRect controlPointFrame = [self.controlPoint1View frame];
-        controlPointFrame.origin.x = self.initialControlPoint1ViewPosition.x + translation.x;
-        controlPointFrame.origin.y = self.initialControlPoint1ViewPosition.y + translation.y;
+        CGRect controlPointFrame = [controlPointView frame];
+        controlPointFrame.origin.x = initialControlPointViewPosition.x + translation.x;
+        controlPointFrame.origin.y = initialControlPointViewPosition.y + translation.y;
         
-        if (controlPointFrame.origin.x<-1*self.controlPoint1View.frame.size.width/2)
+        if (controlPointFrame.origin.x<-1*controlPointView.frame.size.width/2)
         {
-            controlPointFrame.origin.x = -1*self.controlPoint1View.frame.size.width/2;
+            controlPointFrame.origin.x = -1*controlPointView.frame.size.width/2;
         }
-        else if (controlPointFrame.origin.x>self.frame.size.width-self.controlPoint1View.frame.size.width/2)
+        else if (controlPointFrame.origin.x>self.frame.size.width-controlPointView.frame.size.width/2)
         {
-            controlPointFrame.origin.x = self.frame.size.width-self.controlPoint1View.frame.size.width/2;
+            controlPointFrame.origin.x = self.frame.size.width-controlPointView.frame.size.width/2;
         }
-        if (controlPointFrame.origin.y<-1*self.controlPoint1View.frame.size.height/2)
+        if (controlPointFrame.origin.y<-1*controlPointView.frame.size.height/2)
         {
-            controlPointFrame.origin.y = -1*self.controlPoint1View.frame.size.height/2;
+            controlPointFrame.origin.y = -1*controlPointView.frame.size.height/2;
         }
-        else if (controlPointFrame.origin.y>self.frame.size.height-self.controlPoint1View.frame.size.height/2)
+        else if (controlPointFrame.origin.y>self.frame.size.height-controlPointView.frame.size.height/2)
         {
-            controlPointFrame.origin.y = self.frame.size.height-self.controlPoint1View.frame.size.height/2;
+            controlPointFrame.origin.y = self.frame.size.height-controlPointView.frame.size.height/2;
         }
         
-        [self.controlPoint1View setFrame:controlPointFrame];
+        [controlPointView setFrame:controlPointFrame];
         
-        CGPoint newCenter = self.controlPoint1View.center;
+        CGPoint newCenter = controlPointView.center;
         CGPoint newControlPointPosition = CGPointMake( (newCenter.x)/self.frame.size.width*2-1, (1-newCenter.y/self.frame.size.height*2));
-        self.controlPoint1 = newControlPointPosition;
-        [self setNeedsDisplay];
-    }
-}
-
-- (void)onControlPoint2Panned:(UIPanGestureRecognizer*)gestureRecognizer
-{
-    UIGestureRecognizerState state = [gestureRecognizer state];
-    if (state==UIGestureRecognizerStateBegan)
-    {
-        self.initialControlPoint2ViewPosition = [self.controlPoint2View frame].origin;
-    }
-    else
-    {
-        CGPoint translation = [gestureRecognizer translationInView:self];
-        CGRect controlPointFrame = [self.controlPoint2View frame];
-        controlPointFrame.origin.x = self.initialControlPoint2ViewPosition.x + translation.x;
-        controlPointFrame.origin.y = self.initialControlPoint2ViewPosition.y + translation.y;
         
-        if (controlPointFrame.origin.x<-1*self.controlPoint2View.frame.size.width/2)
-        {
-            controlPointFrame.origin.x = -1*self.controlPoint2View.frame.size.width/2;
-        }
-        else if (controlPointFrame.origin.x>self.frame.size.width-self.controlPoint2View.frame.size.width/2)
-        {
-            controlPointFrame.origin.x = self.frame.size.width-self.controlPoint2View.frame.size.width/2;
-        }
-        if (controlPointFrame.origin.y<-1*self.controlPoint2View.frame.size.height/2)
-        {
-            controlPointFrame.origin.y = -1*self.controlPoint2View.frame.size.height/2;
-        }
-        else if (controlPointFrame.origin.y>self.frame.size.height-self.controlPoint2View.frame.size.height/2)
-        {
-            controlPointFrame.origin.y = self.frame.size.height-self.controlPoint2View.frame.size.height/2;
-        }
+        if (view==self.controlPoint1View) self.controlPoint1 = newControlPointPosition;
+        else self.controlPoint2 = newControlPointPosition;
         
-        [self.controlPoint2View setFrame:controlPointFrame];
-        
-        CGPoint newCenter = self.controlPoint2View.center;
-        CGPoint newControlPointPosition = CGPointMake(newCenter.x/self.frame.size.width*2-1, (1-newCenter.y/self.frame.size.height*2));
-        self.controlPoint2 = newControlPointPosition;
         [self setNeedsDisplay];
     }
 }
