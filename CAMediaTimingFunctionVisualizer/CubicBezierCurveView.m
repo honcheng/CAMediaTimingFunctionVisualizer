@@ -50,8 +50,8 @@
     if (self) {
         [self setBackgroundColor:[UIColor whiteColor]];
         
-        _controlPoint1 = CGPointMake(0.05, 0.1);
-        _controlPoint2 = CGPointMake(0.9, 0.95);
+        _controlPoint1 = CGPointMake(0.05, 0.3);
+        _controlPoint2 = CGPointMake(0.7, 0.95);
         
         float controlPointDiameter = 40.0;
         

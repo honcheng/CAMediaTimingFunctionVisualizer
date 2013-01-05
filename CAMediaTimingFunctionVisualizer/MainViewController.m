@@ -13,7 +13,7 @@
 @interface MainViewController ()
 @property (nonatomic, weak) CubicBezierCurveView *graphView;
 @property (nonatomic, weak) UIView *animatedView;
-@property (nonatomic, weak) UIButton *animateButton;
+@property (nonatomic, weak) UIButton *translateButton, *scaleButton;
 @end
 
 @implementation MainViewController
@@ -35,15 +35,21 @@
     [self.view addSubview:graphView];
     self.graphView = graphView;
     
-    UIButton *animateButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    [animateButton setFrame:CGRectMake( ([self.view bounds].size.width-80)/2, [self.view bounds].size.height-80, 80, 40)];
-    [animateButton setTitle:@"Start" forState:UIControlStateNormal];
-    [animateButton setTitle:@"Reset" forState:UIControlStateSelected];
-    [self.view addSubview:animateButton];
-    [animateButton addTarget:self action:@selector(onTestButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    self.animateButton = animateButton;
+    UIButton *translateButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    [translateButton setFrame:CGRectMake(40, [self.view bounds].size.height-80, 100, 40)];
+    [translateButton setTitle:@"Translate" forState:UIControlStateNormal];
+    [self.view addSubview:translateButton];
+    [translateButton addTarget:self action:@selector(onTranslateButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    self.translateButton = translateButton;
+    
+    UIButton *scaleButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    [scaleButton setFrame:CGRectMake(160, [self.view bounds].size.height-80, 100, 40)];
+    [scaleButton setTitle:@"Scale" forState:UIControlStateNormal];
+    [self.view addSubview:scaleButton];
+    [scaleButton addTarget:self action:@selector(onScaleButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    self.scaleButton = scaleButton;
 
-    UIView *animatedView = [[UIView alloc] initWithFrame:CGRectMake(graphView.frame.origin.x, graphView.frame.origin.y+graphView.frame.size.height+50+80, 180,180)];
+    UIView *animatedView = [[UIView alloc] initWithFrame:CGRectMake(graphView.frame.origin.x+40, graphView.frame.origin.y+graphView.frame.size.height+50+80, 180,180)];
     [animatedView setBackgroundColor:[UIColor lightGrayColor]];
     [self.view addSubview:animatedView];
     self.animatedView = animatedView;
@@ -55,46 +61,80 @@
     return UIInterfaceOrientationMaskPortrait|UIInterfaceOrientationMaskPortraitUpsideDown;
 }
 
-- (void)onTestButtonPressed:(id)sender
+- (void)onScaleButtonPressed:(id)sender
 {
-    CGPoint initialPosition = CGPointMake(130, 760);
-    CGPoint finalPosition = CGPointMake(638, 760);
-    if ([sender isSelected])
-    {
-        [sender setSelected:NO];
-        [self.animatedView setCenter:initialPosition];
-    }
-    else
-    {
-        [sender setEnabled:NO];
-
-        CGPoint c1 = self.graphView.controlPoint1;
-        CGPoint c2 = self.graphView.controlPoint2;
-        
-        [CATransaction begin];
-        {
-            float animation_duration = 0.3;
-            
-            [CATransaction setCompletionBlock:^{
-                [sender setEnabled:YES];
-                [sender setSelected:YES];
-            }];
-            
-            CAMediaTimingFunction *translateFunction = [CAMediaTimingFunction functionWithControlPoints:c1.x :c1.y :c2.x :c2.y];
-            [CATransaction setAnimationTimingFunction:translateFunction];
-            
-            CABasicAnimation *translateAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
-            translateAnimation.fromValue = [NSValue valueWithCGPoint:initialPosition];
-            translateAnimation.toValue = [NSValue valueWithCGPoint:finalPosition];
-            translateAnimation.fillMode = kCAFillModeForwards;
-            translateAnimation.duration = animation_duration;
-            [self.animatedView setCenter:finalPosition];
-            [self.animatedView.layer addAnimation:translateAnimation forKey:@"animateViewPosition"];
-            
-        }
-        [CATransaction commit];
-    }
+    [self.translateButton setEnabled:NO];
+    [self.scaleButton setEnabled:NO];
     
+    CGPoint c1 = self.graphView.controlPoint1;
+    CGPoint c2 = self.graphView.controlPoint2;
+    
+    CGPoint finalScale = CGPointMake(1.2, 1.2);
+    [CATransaction begin];
+    {
+        float animation_duration = 0.5;
+        
+        [CATransaction setCompletionBlock:^{
+            [self performSelector:@selector(reset) withObject:nil afterDelay:0.5];
+        }];
+        
+        CAMediaTimingFunction *scaleFunction = [CAMediaTimingFunction functionWithControlPoints:c1.x :c1.y :c2.x :c2.y];
+        [CATransaction setAnimationTimingFunction:scaleFunction];
+        
+        CABasicAnimation *scaleAnimation = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
+        scaleAnimation.fromValue = [NSValue valueWithCGPoint:CGPointMake(1.0, 1.0)];
+        scaleAnimation.toValue = [NSValue valueWithCGPoint:finalScale];
+        scaleAnimation.fillMode = kCAFillModeForwards;
+        scaleAnimation.duration = animation_duration;
+        [self.animatedView setTransform:CGAffineTransformMakeScale(finalScale.x, finalScale.y)];
+        [self.animatedView.layer addAnimation:scaleAnimation forKey:@"animateViewSize"];
+        
+    }
+    [CATransaction commit];
+}
+
+- (void)onTranslateButtonPressed:(id)sender
+{
+    CGPoint initialPosition = CGPointMake(130+20, 760);
+    CGPoint finalPosition = CGPointMake(638, 760);
+    
+    [self.translateButton setEnabled:NO];
+    [self.scaleButton setEnabled:NO];
+    
+    CGPoint c1 = self.graphView.controlPoint1;
+    CGPoint c2 = self.graphView.controlPoint2;
+    
+    [CATransaction begin];
+    {
+        float animation_duration = 0.5;
+        
+        [CATransaction setCompletionBlock:^{
+            [self performSelector:@selector(reset) withObject:nil afterDelay:0.5];
+        }];
+        
+        CAMediaTimingFunction *translateFunction = [CAMediaTimingFunction functionWithControlPoints:c1.x :c1.y :c2.x :c2.y];
+        [CATransaction setAnimationTimingFunction:translateFunction];
+        
+        CABasicAnimation *translateAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
+        translateAnimation.fromValue = [NSValue valueWithCGPoint:initialPosition];
+        translateAnimation.toValue = [NSValue valueWithCGPoint:finalPosition];
+        translateAnimation.fillMode = kCAFillModeForwards;
+        translateAnimation.duration = animation_duration;
+        [self.animatedView setCenter:finalPosition];
+        [self.animatedView.layer addAnimation:translateAnimation forKey:@"animateViewPosition"];
+        
+    }
+    [CATransaction commit];
+    
+}
+
+- (void)reset
+{
+    CGPoint initialPosition = CGPointMake(130+20, 760);
+    [self.translateButton setEnabled:YES];
+    [self.scaleButton setEnabled:YES];
+    [self.animatedView setCenter:initialPosition];
+    [self.animatedView setTransform:CGAffineTransformMakeScale(1.0, 1.0)];
 }
 
 @end
