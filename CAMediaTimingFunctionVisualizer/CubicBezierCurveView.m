@@ -9,8 +9,36 @@
 #import "CubicBezierCurveView.h"
 #import <QuartzCore/QuartzCore.h>
 
+@interface ControlPoint : UIView
+@end
+
+@implementation ControlPoint
+
+- (id)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self){
+        self.backgroundColor = [UIColor clearColor];
+    }
+    return self;
+}
+
+- (void)drawRect:(CGRect)rect
+{
+    float radius = rect.size.width;
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextSetFillColorWithColor(context, [UIColor colorWithRed:1.000 green:0.000 blue:0.000 alpha:0.660].CGColor);
+    CGContextFillEllipseInRect(context, CGRectMake((rect.size.width-radius)/2, (rect.size.height-radius)/2 ,radius,radius));
+    
+    float stroke_width = 1.0;
+    CGContextSetStrokeColorWithColor(context, [UIColor redColor].CGColor);
+    CGContextStrokeEllipseInRect(context, CGRectMake(stroke_width, stroke_width, rect.size.width-2*stroke_width, rect.size.height-2*stroke_width));
+}
+
+@end
+
 @interface CubicBezierCurveView()
-@property (nonatomic, weak) UIView *controlPoint1View, *controlPoint2View;
+@property (nonatomic, weak) ControlPoint *controlPoint1View, *controlPoint2View;
 @property (nonatomic, assign) CGPoint initialControlPoint1ViewPosition, initialControlPoint2ViewPosition;
 @end
 
@@ -27,17 +55,23 @@
         
         float controlPointDiameter = 40.0;
         
-        CGRect controlPoint1ViewFrame = CGRectMake(frame.size.width/2+frame.size.width/2*_controlPoint1.x-controlPointDiameter/2,frame.size.height/2*(1-_controlPoint1.y)-controlPointDiameter/2,controlPointDiameter,controlPointDiameter);
-        UIView *controlPoint1View = [[UIView alloc] initWithFrame:controlPoint1ViewFrame];
-        [controlPoint1View.layer setCornerRadius:controlPointDiameter/2];
-        [controlPoint1View setBackgroundColor:[UIColor darkGrayColor]];
+        CGRect controlPoint1ViewFrame = CGRectMake(frame.size.width/3*(1+_controlPoint1.x)-controlPointDiameter/2,
+                                                   frame.size.height/3*(2-_controlPoint1.y)-controlPointDiameter/2,
+                                                   controlPointDiameter,
+                                                   controlPointDiameter);
+        ControlPoint *controlPoint1View = [[ControlPoint alloc] initWithFrame:controlPoint1ViewFrame];
+        //[controlPoint1View.layer setCornerRadius:controlPointDiameter/2];
+        //[controlPoint1View setBackgroundColor:[UIColor colorWithRed:0.682 green:0.000 blue:0.000 alpha:1.000]];
         [self addSubview:controlPoint1View];
         self.controlPoint1View = controlPoint1View;
         
-        CGRect controlPoint2ViewFrame = CGRectMake(frame.size.width/2+frame.size.width/2*_controlPoint2.x-controlPointDiameter/2,frame.size.height/2*(1-_controlPoint2.y)-controlPointDiameter/2,controlPointDiameter,controlPointDiameter);
-        UIView *controlPoint2View = [[UIView alloc] initWithFrame:controlPoint2ViewFrame];
-        [controlPoint2View.layer setCornerRadius:controlPointDiameter/2];
-        [controlPoint2View setBackgroundColor:[UIColor darkGrayColor]];
+        CGRect controlPoint2ViewFrame = CGRectMake(frame.size.width/3*(1+_controlPoint2.x)-controlPointDiameter/2,
+                                                   frame.size.height/3*(2-_controlPoint2.y)-controlPointDiameter/2,
+                                                   controlPointDiameter,
+                                                   controlPointDiameter);
+        ControlPoint *controlPoint2View = [[ControlPoint alloc] initWithFrame:controlPoint2ViewFrame];
+        //[controlPoint2View.layer setCornerRadius:controlPointDiameter/2];
+        //[controlPoint2View setBackgroundColor:[UIColor colorWithRed:0.682 green:0.000 blue:0.000 alpha:1.000]];
         [self addSubview:controlPoint2View];
         self.controlPoint2View = controlPoint2View;
         
@@ -62,18 +96,27 @@
     CGPathRelease(outlinePath);
     
     CGContextBeginPath(context);
-    CGContextMoveToPoint(context, 0, rect.size.height/2);
-    CGContextAddLineToPoint(context, rect.size.width, rect.size.height/2);
-    CGContextMoveToPoint(context, rect.size.width/2, 0);
-    CGContextAddLineToPoint(context, rect.size.width/2,rect.size.height);
+    CGContextMoveToPoint(context, 0, rect.size.height/3);
+    CGContextAddLineToPoint(context, rect.size.width, rect.size.height/3);
+    CGContextMoveToPoint(context, 0, rect.size.height/3*2);
+    CGContextAddLineToPoint(context, rect.size.width, rect.size.height/3*2);
+    CGContextMoveToPoint(context, rect.size.width/3, 0);
+    CGContextAddLineToPoint(context, rect.size.width/3,rect.size.height);
+    CGContextMoveToPoint(context, rect.size.width/3*2, 0);
+    CGContextAddLineToPoint(context, rect.size.width/3*2,rect.size.height);
+    float dash[2] = {2,2};
+    CGContextSetLineDash(context, 0, dash, 2);
     CGContextStrokePath(context);
     
     CGContextSetLineWidth(context, 2.0);
+    float dash2[2] = {0,0};
+    CGContextSetLineDash(context, 0, dash2, 0);
+    [[UIColor blueColor] setStroke];
     
-    CGPoint startPoint = CGPointMake(rect.size.width/2, rect.size.height/2);
-    CGPoint endPoint = CGPointMake(rect.size.width, 0);
-    CGPoint controlPoint1 = CGPointMake(rect.size.width/2+rect.size.width/2*self.controlPoint1.x,rect.size.height/2*(1-self.controlPoint1.y));
-    CGPoint controlPoint2 = CGPointMake(rect.size.width/2+rect.size.width/2*self.controlPoint2.x,rect.size.height/2*(1-self.controlPoint2.y));
+    CGPoint startPoint = CGPointMake(rect.size.width/3, rect.size.height/3*2);
+    CGPoint endPoint = CGPointMake(rect.size.width/3*2, rect.size.height/3);
+    CGPoint controlPoint1 = CGPointMake(rect.size.width/3*(1+self.controlPoint1.x),rect.size.height/3*(2-self.controlPoint1.y));
+    CGPoint controlPoint2 = CGPointMake(rect.size.width/3*(1+self.controlPoint2.x),rect.size.height/3*(2-self.controlPoint2.y));
     
     UIBezierPath *bezierPath = [UIBezierPath bezierPath];
     [bezierPath moveToPoint:startPoint];
@@ -81,6 +124,9 @@
     CGContextAddPath(context, bezierPath.CGPath);
     CGContextDrawPath(context, kCGPathStroke);
 //    CGPathRelease(bezierPath.CGPath);
+    
+    [[UIColor redColor] setStroke];
+    CGContextSetLineDash(context, 0, dash, 2);
     
     CGContextBeginPath(context);
     CGContextMoveToPoint(context, startPoint.x, startPoint.y);
@@ -159,7 +205,7 @@
         [controlPointView setFrame:controlPointFrame];
         
         CGPoint newCenter = controlPointView.center;
-        CGPoint newControlPointPosition = CGPointMake( (newCenter.x)/self.frame.size.width*2-1, (1-newCenter.y/self.frame.size.height*2));
+        CGPoint newControlPointPosition = CGPointMake( (newCenter.x)/self.frame.size.width*3-1, (2-newCenter.y/self.frame.size.height*3));
         
         if (view==self.controlPoint1View) self.controlPoint1 = newControlPointPosition;
         else self.controlPoint2 = newControlPointPosition;
