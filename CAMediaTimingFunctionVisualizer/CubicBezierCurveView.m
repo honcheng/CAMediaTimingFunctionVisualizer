@@ -51,6 +51,14 @@
         
         _controlPoint1 = CGPointMake(0.326, 1.512);
         _controlPoint2 = CGPointMake(0.814, 0.850);
+        
+        if ([[NSUserDefaults standardUserDefaults] objectForKey:@"LastUsedControlPoints"]){
+            NSDictionary *controlPointInfo = [[NSUserDefaults standardUserDefaults] objectForKey:@"LastUsedControlPoints"];
+            _controlPoint1.x = [controlPointInfo[@"c1x"] floatValue];
+            _controlPoint1.y = [controlPointInfo[@"c1y"] floatValue];
+            _controlPoint2.x = [controlPointInfo[@"c2x"] floatValue];
+            _controlPoint2.y = [controlPointInfo[@"c2y"] floatValue];
+        }
 
         CGRect controlPoint1ViewFrame = CGRectMake(frame.size.width/3*(1+_controlPoint1.x)-CONTROL_POINT_DIAMETER/2,
                                                    frame.size.height/3*(2-_controlPoint1.y)-CONTROL_POINT_DIAMETER/2,
@@ -85,6 +93,7 @@
                                                CONTROL_POINT_DIAMETER,
                                                CONTROL_POINT_DIAMETER);
     [self.controlPoint1View setFrame:controlPoint1ViewFrame];
+    [self saveControlPoints];
 }
 
 - (void)setControlPoint2:(CGPoint)controlPoint2
@@ -96,6 +105,7 @@
                                                CONTROL_POINT_DIAMETER,
                                                CONTROL_POINT_DIAMETER);
     [self.controlPoint2View setFrame:controlPoint2ViewFrame];
+    [self saveControlPoints];
 }
 
 - (void)drawRect:(CGRect)rect
@@ -228,10 +238,26 @@
         [self setNeedsDisplay];
     }
     
+    if (state==UIGestureRecognizerStateEnded)
+    {
+        [self saveControlPoints];
+    }
+    
     if ([self.delegate respondsToSelector:@selector(onCurveChanged)])
     {
         [self.delegate onCurveChanged];
     }
+}
+
+- (void)saveControlPoints
+{
+    NSMutableDictionary *controlPointInfo = [NSMutableDictionary dictionary];
+    controlPointInfo[@"c1x"] = @(self.controlPoint1.x);
+    controlPointInfo[@"c1y"] = @(self.controlPoint1.y);
+    controlPointInfo[@"c2x"] = @(self.controlPoint2.x);
+    controlPointInfo[@"c2y"] = @(self.controlPoint2.y);
+    [[NSUserDefaults standardUserDefaults] setObject:controlPointInfo forKey:@"LastUsedControlPoints"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 @end
