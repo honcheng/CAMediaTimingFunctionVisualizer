@@ -7,7 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "EasingCurveSelectorViewController.h"
+#import "CubicBezierCurveView.h"
 
-@interface MainViewController : UIViewController
+@interface MainViewController : UIViewController <EasingCurveSelectorViewControllerDelegate, CubicBezierCurveViewDelegate>
 
 @end

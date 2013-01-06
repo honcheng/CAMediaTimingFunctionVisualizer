@@ -8,6 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol CubicBezierCurveViewDelegate <NSObject>
+- (void)onCurveChanged;
+@end
+
 @interface CubicBezierCurveView : UIView
 @property (nonatomic, assign) CGPoint controlPoint1, controlPoint2;
+@property (nonatomic, weak) id<CubicBezierCurveViewDelegate> delegate;
 @end

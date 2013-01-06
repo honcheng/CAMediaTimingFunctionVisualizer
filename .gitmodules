@@ -1,0 +1,3 @@
+[submodule "CAMediaTimingFunctionVisualizer/CustomMediaTimingFunction"]
+	path = CAMediaTimingFunctionVisualizer/CustomMediaTimingFunction
+	url = https://github.com/honcheng/CustomMediaTimingFunction.git

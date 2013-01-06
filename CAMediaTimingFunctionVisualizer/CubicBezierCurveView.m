@@ -42,6 +42,8 @@
 @property (nonatomic, assign) CGPoint initialControlPoint1ViewPosition, initialControlPoint2ViewPosition;
 @end
 
+#define CONTROL_POINT_DIAMETER 40.0
+
 @implementation CubicBezierCurveView
 
 - (id)initWithFrame:(CGRect)frame
@@ -52,26 +54,20 @@
         
         _controlPoint1 = CGPointMake(0.05, 0.3);
         _controlPoint2 = CGPointMake(0.7, 0.95);
-        
-        float controlPointDiameter = 40.0;
-        
-        CGRect controlPoint1ViewFrame = CGRectMake(frame.size.width/3*(1+_controlPoint1.x)-controlPointDiameter/2,
-                                                   frame.size.height/3*(2-_controlPoint1.y)-controlPointDiameter/2,
-                                                   controlPointDiameter,
-                                                   controlPointDiameter);
+
+        CGRect controlPoint1ViewFrame = CGRectMake(frame.size.width/3*(1+_controlPoint1.x)-CONTROL_POINT_DIAMETER/2,
+                                                   frame.size.height/3*(2-_controlPoint1.y)-CONTROL_POINT_DIAMETER/2,
+                                                   CONTROL_POINT_DIAMETER,
+                                                   CONTROL_POINT_DIAMETER);
         ControlPoint *controlPoint1View = [[ControlPoint alloc] initWithFrame:controlPoint1ViewFrame];
-        //[controlPoint1View.layer setCornerRadius:controlPointDiameter/2];
-        //[controlPoint1View setBackgroundColor:[UIColor colorWithRed:0.682 green:0.000 blue:0.000 alpha:1.000]];
         [self addSubview:controlPoint1View];
         self.controlPoint1View = controlPoint1View;
         
-        CGRect controlPoint2ViewFrame = CGRectMake(frame.size.width/3*(1+_controlPoint2.x)-controlPointDiameter/2,
-                                                   frame.size.height/3*(2-_controlPoint2.y)-controlPointDiameter/2,
-                                                   controlPointDiameter,
-                                                   controlPointDiameter);
+        CGRect controlPoint2ViewFrame = CGRectMake(frame.size.width/3*(1+_controlPoint2.x)-CONTROL_POINT_DIAMETER/2,
+                                                   frame.size.height/3*(2-_controlPoint2.y)-CONTROL_POINT_DIAMETER/2,
+                                                   CONTROL_POINT_DIAMETER,
+                                                   CONTROL_POINT_DIAMETER);
         ControlPoint *controlPoint2View = [[ControlPoint alloc] initWithFrame:controlPoint2ViewFrame];
-        //[controlPoint2View.layer setCornerRadius:controlPointDiameter/2];
-        //[controlPoint2View setBackgroundColor:[UIColor colorWithRed:0.682 green:0.000 blue:0.000 alpha:1.000]];
         [self addSubview:controlPoint2View];
         self.controlPoint2View = controlPoint2View;
         
@@ -81,6 +77,28 @@
         [controlPoint2View addGestureRecognizer:controlPoint2GestureRecognizer];
     }
     return self;
+}
+
+- (void)setControlPoint1:(CGPoint)controlPoint1
+{
+    _controlPoint1 = controlPoint1;
+    
+    CGRect controlPoint1ViewFrame = CGRectMake(self.frame.size.width/3*(1+_controlPoint1.x)-CONTROL_POINT_DIAMETER/2,
+                                               self.frame.size.height/3*(2-_controlPoint1.y)-CONTROL_POINT_DIAMETER/2,
+                                               CONTROL_POINT_DIAMETER,
+                                               CONTROL_POINT_DIAMETER);
+    [self.controlPoint1View setFrame:controlPoint1ViewFrame];
+}
+
+- (void)setControlPoint2:(CGPoint)controlPoint2
+{
+    _controlPoint2 = controlPoint2;
+    
+    CGRect controlPoint2ViewFrame = CGRectMake(self.frame.size.width/3*(1+_controlPoint2.x)-CONTROL_POINT_DIAMETER/2,
+                                               self.frame.size.height/3*(2-_controlPoint2.y)-CONTROL_POINT_DIAMETER/2,
+                                               CONTROL_POINT_DIAMETER,
+                                               CONTROL_POINT_DIAMETER);
+    [self.controlPoint2View setFrame:controlPoint2ViewFrame];
 }
 
 - (void)drawRect:(CGRect)rect
@@ -164,6 +182,11 @@
     {
         if (view==self.controlPoint1View) self.initialControlPoint1ViewPosition = [self.controlPoint1View frame].origin;
         else self.initialControlPoint2ViewPosition = [self.controlPoint2View frame].origin;
+        
+        if ([self.delegate respondsToSelector:@selector(onCurveChanged)])
+        {
+            [self.delegate onCurveChanged];
+        }
     }
     else
     {

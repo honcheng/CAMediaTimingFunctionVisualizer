@@ -19,6 +19,8 @@
 		F8276DE4169876660029C7CC /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F8276DE3169876660029C7CC /* MainViewController.m */; };
 		F8276DE7169876E80029C7CC /* CubicBezierCurveView.m in Sources */ = {isa = PBXBuildFile; fileRef = F8276DE6169876E80029C7CC /* CubicBezierCurveView.m */; };
 		F8276DE916987B8B0029C7CC /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8276DE816987B8B0029C7CC /* QuartzCore.framework */; };
+		F8FBF7F61698F14000A9C7E0 /* KKCustomMediaTimingFunction.m in Sources */ = {isa = PBXBuildFile; fileRef = F8FBF7F51698F14000A9C7E0 /* KKCustomMediaTimingFunction.m */; };
+		F8FBF7FD1698F27400A9C7E0 /* EasingCurveSelectorViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F8FBF7FC1698F27400A9C7E0 /* EasingCurveSelectorViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +42,10 @@
 		F8276DE5169876E80029C7CC /* CubicBezierCurveView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CubicBezierCurveView.h; sourceTree = "<group>"; };
 		F8276DE6169876E80029C7CC /* CubicBezierCurveView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CubicBezierCurveView.m; sourceTree = "<group>"; };
 		F8276DE816987B8B0029C7CC /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		F8FBF7F41698F14000A9C7E0 /* KKCustomMediaTimingFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KKCustomMediaTimingFunction.h; sourceTree = "<group>"; };
+		F8FBF7F51698F14000A9C7E0 /* KKCustomMediaTimingFunction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KKCustomMediaTimingFunction.m; sourceTree = "<group>"; };
+		F8FBF7FB1698F27400A9C7E0 /* EasingCurveSelectorViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasingCurveSelectorViewController.h; sourceTree = "<group>"; };
+		F8FBF7FC1698F27400A9C7E0 /* EasingCurveSelectorViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EasingCurveSelectorViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +100,9 @@
 				F8276DE3169876660029C7CC /* MainViewController.m */,
 				F8276DE5169876E80029C7CC /* CubicBezierCurveView.h */,
 				F8276DE6169876E80029C7CC /* CubicBezierCurveView.m */,
+				F8FBF7FB1698F27400A9C7E0 /* EasingCurveSelectorViewController.h */,
+				F8FBF7FC1698F27400A9C7E0 /* EasingCurveSelectorViewController.m */,
+				F8FBF7F31698F14000A9C7E0 /* CustomMediaTimingFunction */,
 				F8276DCC169876520029C7CC /* Supporting Files */,
 			);
 			path = CAMediaTimingFunctionVisualizer;
@@ -111,6 +120,16 @@
 				F8276DDB169876520029C7CC /* Default-568h@2x.png */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		F8FBF7F31698F14000A9C7E0 /* CustomMediaTimingFunction */ = {
+			isa = PBXGroup;
+			children = (
+				F8FBF7F41698F14000A9C7E0 /* KKCustomMediaTimingFunction.h */,
+				F8FBF7F51698F14000A9C7E0 /* KKCustomMediaTimingFunction.m */,
+			);
+			name = CustomMediaTimingFunction;
+			path = CustomMediaTimingFunction/src;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -182,6 +201,8 @@
 				F8276DD6169876520029C7CC /* AppDelegate.m in Sources */,
 				F8276DE4169876660029C7CC /* MainViewController.m in Sources */,
 				F8276DE7169876E80029C7CC /* CubicBezierCurveView.m in Sources */,
+				F8FBF7F61698F14000A9C7E0 /* KKCustomMediaTimingFunction.m in Sources */,
+				F8FBF7FD1698F27400A9C7E0 /* EasingCurveSelectorViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -291,6 +312,7 @@
 				F8276DE1169876520029C7CC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

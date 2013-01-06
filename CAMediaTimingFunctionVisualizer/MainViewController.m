@@ -7,13 +7,15 @@
 //
 
 #import "MainViewController.h"
-#import "CubicBezierCurveView.h"
 #import <QuartzCore/QuartzCore.h>
+
 
 @interface MainViewController ()
 @property (nonatomic, weak) CubicBezierCurveView *graphView;
 @property (nonatomic, weak) UIView *animatedView;
 @property (nonatomic, weak) UIButton *translateButton, *scaleButton;
+@property (nonatomic, weak) UIButton *easingCurveButton;
+@property (nonatomic, strong) UIPopoverController *easingCurveSelectorPopoverController;
 @end
 
 @implementation MainViewController
@@ -32,6 +34,7 @@
     [super viewDidLoad];
 	
     CubicBezierCurveView *graphView = [[CubicBezierCurveView alloc] initWithFrame:CGRectMake(40, 40, [self.view bounds].size.width-2*40, 500)];
+    [graphView setDelegate:self];
     [self.view addSubview:graphView];
     self.graphView = graphView;
     
@@ -48,6 +51,13 @@
     [self.view addSubview:scaleButton];
     [scaleButton addTarget:self action:@selector(onScaleButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     self.scaleButton = scaleButton;
+    
+    UIButton *easingCurveButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    [easingCurveButton setFrame:CGRectMake(40, graphView.frame.origin.y+graphView.frame.size.height+20, 200, 40)];
+    [easingCurveButton setTitle:@"Custom Curve" forState:UIControlStateNormal];
+    [self.view addSubview:easingCurveButton];
+    [easingCurveButton addTarget:self action:@selector(onEasingCurveButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    self.easingCurveButton = easingCurveButton;
 
     UIView *animatedView = [[UIView alloc] initWithFrame:CGRectMake(graphView.frame.origin.x+40, graphView.frame.origin.y+graphView.frame.size.height+50+80, 180,180)];
     [animatedView setBackgroundColor:[UIColor lightGrayColor]];
@@ -106,7 +116,7 @@
     
     [CATransaction begin];
     {
-        float animation_duration = 0.5;
+        float animation_duration = 1.0;
         
         [CATransaction setCompletionBlock:^{
             [self performSelector:@selector(reset) withObject:nil afterDelay:0.5];
@@ -135,6 +145,36 @@
     [self.scaleButton setEnabled:YES];
     [self.animatedView setCenter:initialPosition];
     [self.animatedView setTransform:CGAffineTransformMakeScale(1.0, 1.0)];
+}
+
+#pragma mark EasingCurveSelector, based on https://github.com/KinkumaDesign/CustomMediaTimingFunction
+
+- (void)onEasingCurveButtonPressed:(UIButton*)sender
+{
+    if (!self.easingCurveSelectorPopoverController)
+    {
+        EasingCurveSelectorViewController *selector = [[EasingCurveSelectorViewController alloc] initWithStyle:UITableViewStylePlain];
+        self.easingCurveSelectorPopoverController = [[UIPopoverController alloc] initWithContentViewController:selector];
+        [selector setDelegate:self];
+    }
+    [self.easingCurveSelectorPopoverController presentPopoverFromRect:sender.frame inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+}
+
+- (void)easingCurveSelector:(EasingCurveSelectorViewController*)selector didSelectCurve:(NSString*)curveName controlPoints:(NSArray*)controlPoints
+{
+    [self.easingCurveButton setTitle:curveName forState:UIControlStateNormal];
+    CGPoint controlPoint1 = CGPointMake([controlPoints[0] floatValue], [controlPoints[1] floatValue]);
+    CGPoint controlPoint2 = CGPointMake([controlPoints[2] floatValue], [controlPoints[3] floatValue]);
+    [self.graphView setControlPoint1:controlPoint1];
+    [self.graphView setControlPoint2:controlPoint2];
+    [self.graphView setNeedsDisplay];
+    
+    [self.easingCurveSelectorPopoverController dismissPopoverAnimated:YES];
+}
+
+- (void)onCurveChanged
+{
+    [self.easingCurveButton setTitle:@"Custom Curve" forState:UIControlStateNormal];
 }
 
 @end
