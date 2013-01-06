@@ -8,6 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
+@interface ControlPoint : UIView
+@end
+
 @protocol CubicBezierCurveViewDelegate <NSObject>
 - (void)onCurveChanged;
 @end

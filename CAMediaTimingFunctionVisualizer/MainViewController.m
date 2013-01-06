@@ -9,13 +9,13 @@
 #import "MainViewController.h"
 #import <QuartzCore/QuartzCore.h>
 
-
 @interface MainViewController ()
 @property (nonatomic, weak) CubicBezierCurveView *graphView;
-@property (nonatomic, weak) UIView *animatedView;
+@property (nonatomic, weak) ControlPoint *animatedView;
 @property (nonatomic, weak) UIButton *translateButton, *scaleButton;
 @property (nonatomic, weak) UIButton *easingCurveButton;
 @property (nonatomic, strong) UIPopoverController *easingCurveSelectorPopoverController;
+@property (nonatomic, weak) UILabel *functionLabel;
 @end
 
 @implementation MainViewController
@@ -58,9 +58,14 @@
     [self.view addSubview:easingCurveButton];
     [easingCurveButton addTarget:self action:@selector(onEasingCurveButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     self.easingCurveButton = easingCurveButton;
+    
+    UILabel *functionLabel = [[UILabel alloc] initWithFrame:CGRectMake(easingCurveButton.frame.origin.x+easingCurveButton.frame.size.width+20, easingCurveButton.frame.origin.y, 480, easingCurveButton.frame.size.height)];
+    [functionLabel setFont:[UIFont systemFontOfSize:12]];
+    [self.view addSubview:functionLabel];
+    self.functionLabel = functionLabel;
+    [self fillFunctionLabel];
 
-    UIView *animatedView = [[UIView alloc] initWithFrame:CGRectMake(graphView.frame.origin.x+40, graphView.frame.origin.y+graphView.frame.size.height+50+80, 180,180)];
-    [animatedView setBackgroundColor:[UIColor lightGrayColor]];
+    ControlPoint *animatedView = [[ControlPoint alloc] initWithFrame:CGRectMake(graphView.frame.origin.x+40, graphView.frame.origin.y+graphView.frame.size.height+50+80, 180,180)];
     [self.view addSubview:animatedView];
     self.animatedView = animatedView;
 }
@@ -147,6 +152,19 @@
     [self.animatedView setTransform:CGAffineTransformMakeScale(1.0, 1.0)];
 }
 
+- (void)fillFunctionLabel
+{
+    NSString *function = [NSString stringWithFormat:@"[CAMediaTimingFunction functionWithControlPoints:%.3f :%.3f :%.3f :%.3f]",
+                          self.graphView.controlPoint1.x,
+                          self.graphView.controlPoint1.y,
+                          self.graphView.controlPoint2.x,
+                          self.graphView.controlPoint2.y];
+    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:function];
+    [attributedString addAttribute:NSFontAttributeName value:[UIFont boldSystemFontOfSize:12] range:NSMakeRange(48, [function length]-49)];
+    [attributedString addAttribute:NSForegroundColorAttributeName value:[UIColor redColor] range:NSMakeRange(48, [function length]-49)];
+    [self.functionLabel setAttributedText:attributedString];
+}
+
 #pragma mark EasingCurveSelector, based on https://github.com/KinkumaDesign/CustomMediaTimingFunction
 
 - (void)onEasingCurveButtonPressed:(UIButton*)sender
@@ -170,11 +188,13 @@
     [self.graphView setNeedsDisplay];
     
     [self.easingCurveSelectorPopoverController dismissPopoverAnimated:YES];
+    [self fillFunctionLabel];
 }
 
 - (void)onCurveChanged
 {
     [self.easingCurveButton setTitle:@"Custom Curve" forState:UIControlStateNormal];
+    [self fillFunctionLabel];
 }
 
 @end

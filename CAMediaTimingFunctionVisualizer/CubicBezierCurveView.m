@@ -9,9 +9,6 @@
 #import "CubicBezierCurveView.h"
 #import <QuartzCore/QuartzCore.h>
 
-@interface ControlPoint : UIView
-@end
-
 @implementation ControlPoint
 
 - (id)initWithFrame:(CGRect)frame
@@ -52,8 +49,8 @@
     if (self) {
         [self setBackgroundColor:[UIColor whiteColor]];
         
-        _controlPoint1 = CGPointMake(0.05, 0.3);
-        _controlPoint2 = CGPointMake(0.7, 0.95);
+        _controlPoint1 = CGPointMake(0.326, 1.512);
+        _controlPoint2 = CGPointMake(0.814, 0.850);
 
         CGRect controlPoint1ViewFrame = CGRectMake(frame.size.width/3*(1+_controlPoint1.x)-CONTROL_POINT_DIAMETER/2,
                                                    frame.size.height/3*(2-_controlPoint1.y)-CONTROL_POINT_DIAMETER/2,
@@ -153,7 +150,7 @@
     CGContextAddLineToPoint(context, controlPoint2.x, controlPoint2.y);
     CGContextStrokePath(context);
     
-    [[UIColor blackColor] setFill];
+    [[UIColor redColor] setFill];
     CGRect controlPoint1CoordinateFrame = CGRectMake(controlPoint1.x+self.controlPoint1View.frame.size.width,controlPoint1.y-10,100,20);
     if (controlPoint1CoordinateFrame.origin.x+controlPoint1CoordinateFrame.size.width > self.frame.size.width)
     {
@@ -182,11 +179,6 @@
     {
         if (view==self.controlPoint1View) self.initialControlPoint1ViewPosition = [self.controlPoint1View frame].origin;
         else self.initialControlPoint2ViewPosition = [self.controlPoint2View frame].origin;
-        
-        if ([self.delegate respondsToSelector:@selector(onCurveChanged)])
-        {
-            [self.delegate onCurveChanged];
-        }
     }
     else
     {
@@ -234,6 +226,11 @@
         else self.controlPoint2 = newControlPointPosition;
         
         [self setNeedsDisplay];
+    }
+    
+    if ([self.delegate respondsToSelector:@selector(onCurveChanged)])
+    {
+        [self.delegate onCurveChanged];
     }
 }
 
